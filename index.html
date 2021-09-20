@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"      rel="stylesheet"
+      integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"      crossorigin="anonymous"    />
+    <link      rel="stylesheet"      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"    />
+
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <style>
+      :root{
+        --blur:8 px;
+      }
+      img{
+        filter: blur( var(--blur));
+        border-radius: 1rem;
+      }
+      .card{
+        border-radius: 1rem;
+        border-color: pink;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div style="margin-left: 15%;">
+        <label for="blur" class="fs-3 ">Adjust the clarity:</label>
+        <input class="blurBar" type="range" name="blur" min="0" max="10" value="8" data-sizing="px">
+      
+      </div>
+
+      <div class="container ">
+
+      
+        <div class="my-3">
+          <button  type="button" class="btn btn-outline-primary "  @click='loadData' > Next group >>   </button>
+          <!-- 現在圖片解析度：
+          <span>清晰</span> -->
+        </div>
+
+
+
+
+
+        <div class="row">
+          <!-- 一個版 多筆資料 迴圈產出 -->
+          <div class="col-md-4 mb-3" v-for="item in data">  
+            <div class="card h-100">
+              <div class="position-absolute" style="top: 20px; right: 20px">
+                <button type="button" class="btn btn-outline-danger rounded-pill" >
+                  <i class="bi bi-heart fs-5"></i>
+                </button>
+              </div>
+        <!-- 大頭 -->
+              <img :src=" item.picture.large"   class=" profile"/>
+              
+              <div class="card-body">
+                <h5 class="card-title">
+                  {{ item.name.last}} {{ item.name.first}} ( 
+                                          <span v-if="item.gender !== 'female' "> <i class="bi bi-gender-male"></i> </span> 
+                                          <span v-else><i class="bi bi-gender-female"></i></span> 
+                                        )
+                </h5>
+                <p class="card-text">
+                  Email：
+                  <a :href="'mailto:'+item.email"  >{{ item.email}}</a  >
+                </p>
+
+                <p class="card-text">
+                  Phone: <a :href="'tel:'+ item.phone"> {{ item.phone}}</a>
+                </p>
+                <p class="card-text">
+                  Cell: <a :href="'tel:' + item.cell">{{ item.cell}}</a>
+                </p>
+                <p class="card-text">City: {{ item.location.city}}</p>
+                <p class="card-text">State: {{ item.location.state}}</p>
+                <p class="card-text">Country: {{ item.location.country}}</p>
+                <p class="card-text">Postcode: {{ item.location.postcode}}</p>
+                <p>
+                  Address：
+                  <a   :href="'https://www.google.com.tw/maps/search/'+ item.location.city"  target="_blank">
+                    {{ item.location.city}}  {{ item.location.state}}  {{ item.location.country}}  {{ item.location.postcode}}
+                  </a >
+                </p>
+                <!-- <p class="card-text">
+                  description: Bombay, Calcutta, Madras, New Delhi
+                </p> -->
+                <p class="card-text">
+                  <small class="text-muted" >dob：{{ item.dob.date}}</small >
+                </p>
+                <p class="card-text">
+                  <small class="text-muted"   >registered：{{ item.registered.date}}}</small >
+                </p>
+                <iframe width="100%"  height="300"    frameborder="0"  scrolling="no"     marginheight="0"  marginwidth="0"
+                  :src="'https://maps.google.com.tw/maps?f=q&amp;hl=zh-TW&amp;geocode=&amp;q=' +item.location.coordinates.latitude +','+ item.location.coordinates.longitude +'&amp;z=10&amp;output=embed'"></iframe>
+              </div>
+          </div>
+        </div>
+        
+
+      </div>  <!--container-->
+
+
+    </div> <!--app-->
+  </div> <!--body-->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"      
+      integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"       crossorigin="anonymous"    ></script>
+
+    <!-- <script src="data.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js">    </script>  
+    <script>
+      //調整清晰度
+      function changeBlur (){
+        // document.querySelectorAll('.profile').style.filter = `blur(${this.value}px)`
+        document.querySelectorAll('.profile').forEach(element => {
+          element.style.filter = `blur(${this.value}px)`
+        });
+        console.log(this.name, this.value)       
+      }
+      document.querySelector(".blurBar").addEventListener("change",changeBlur)
+      document.querySelector(".blurBar").addEventListener("mousemove",changeBlur)
+
+
+     
+
+    </script>
+    <script>
+      Vue.createApp({
+        data() {
+          return {
+            data:[]  // 設為一個空陣列，用來裝 回應的陣列訊息!!!!
+          };
+        },
+        methods: {
+          loadData (){
+            axios.get("https://randomuser.me/api/?results=16")
+            .then((response) => {        
+              this.data = response.data.results; 
+            })
+          },
+          
+        
+        },
+        mounted :function  () {
+
+          this.loadData();  
+      //若動作寫此，按鈕無法換下一批
+        // mounted :function loadData () {
+        //   axios.get("https://randomuser.me/api/?results=16")
+        //     .then((response) => {   //建議此 必用箭頭函式 以免this 抓不到 data []
+        //       // console.log(response)
+             
+        //       this.data = response.data.results 
+        //       // console.log("thisi is "+this.data[0].email)
+        //     })
+          
+        }
+      }).mount('.container');
+
+    </script>
+  </body>
+</html>
